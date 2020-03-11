@@ -1,0 +1,24 @@
+# permissions for end users to edit externalconfigmaps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: externalconfigmap-editor-role
+rules:
+- apiGroups:
+  - external-secrets-operator.slamdev.net
+  resources:
+  - externalconfigmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - external-secrets-operator.slamdev.net
+  resources:
+  - externalconfigmaps/status
+  verbs:
+  - get

@@ -1,3 +1,13 @@
 domain: slamdev.net
 repo: external-secrets-operator
+resources:
+- group: external-secrets-operator
+  kind: ExternalBackend
+  version: v1alpha1
+- group: external-secrets-operator
+  kind: ExternalSecret
+  version: v1alpha1
+- group: external-secrets-operator
+  kind: ExternalConfigMap
+  version: v1alpha1
 version: "2"
