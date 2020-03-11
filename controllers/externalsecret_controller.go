@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"external-secrets-operator/internal"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -14,8 +15,9 @@ import (
 // ExternalSecretReconciler reconciles a ExternalSecret object
 type ExternalSecretReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Scheme   *runtime.Scheme
+	Backends map[string]internal.Backend
 }
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalsecrets,verbs=get;list;watch;create;update;patch;delete
