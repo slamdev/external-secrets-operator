@@ -4,22 +4,24 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // ExternalSecretSpec defines the desired state of ExternalSecret
 type ExternalSecretSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// +kubebuilder:validation:MinLength=1
 
-	// Foo is an example field of ExternalSecret. Edit ExternalSecret_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Name of the ExternalBackend resource that is used to get a secret value.
+	BackendName string `json:"backendName"`
+
+	// +kubebuilder:validation:MinLength=1
+
+	// Key in the backend that holds a secret value.
+	Key string `json:"key"`
 }
 
 // ExternalSecretStatus defines the observed state of ExternalSecret
 type ExternalSecretStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Information when was the last time the secret was successfully synced.
+	// +optional
+	LastSyncedTime *metav1.Time `json:"lastSyncedTime,omitempty"`
 }
 
 // +kubebuilder:object:root=true
