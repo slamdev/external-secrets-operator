@@ -1,0 +1,3 @@
+domain: slamdev.net
+repo: external-secrets-operator
+version: "2"
