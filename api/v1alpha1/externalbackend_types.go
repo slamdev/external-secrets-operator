@@ -33,10 +33,12 @@ const (
 // ExternalBackendStatus defines the observed state of ExternalBackend
 type ExternalBackendStatus struct {
 	// Information about the backend connection status.
-	Connected *bool `json:"connected"`
+	// +optional
+	Connected *bool `json:"connected,omitempty"`
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // ExternalBackend is the Schema for the externalbackends API
 type ExternalBackend struct {
@@ -59,3 +61,5 @@ type ExternalBackendList struct {
 func init() {
 	SchemeBuilder.Register(&ExternalBackend{}, &ExternalBackendList{})
 }
+
+// +kubebuilder:docs-gen:collapse=Root Object Definitions

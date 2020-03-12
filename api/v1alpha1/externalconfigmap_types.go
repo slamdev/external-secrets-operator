@@ -25,6 +25,7 @@ type ExternalConfigMapStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // ExternalConfigMap is the Schema for the externalconfigmaps API
 type ExternalConfigMap struct {
@@ -47,3 +48,5 @@ type ExternalConfigMapList struct {
 func init() {
 	SchemeBuilder.Register(&ExternalConfigMap{}, &ExternalConfigMapList{})
 }
+
+// +kubebuilder:docs-gen:collapse=Root Object Definitions

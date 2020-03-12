@@ -25,6 +25,7 @@ type ExternalSecretStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // ExternalSecret is the Schema for the externalsecrets API
 type ExternalSecret struct {
@@ -47,3 +48,5 @@ type ExternalSecretList struct {
 func init() {
 	SchemeBuilder.Register(&ExternalSecret{}, &ExternalSecretList{})
 }
+
+// +kubebuilder:docs-gen:collapse=Root Object Definitions
