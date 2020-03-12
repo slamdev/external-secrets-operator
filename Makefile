@@ -21,6 +21,11 @@ test: generate fmt vet manifests
 manager: generate fmt vet
 	go build -o bin/manager main.go
 
+# Deploy sample resources
+samples:
+	kubectl delete -f config/samples/ || true
+	kubectl apply -f config/samples/
+
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet manifests
 	go run ./main.go
