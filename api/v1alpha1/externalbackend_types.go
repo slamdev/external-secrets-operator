@@ -38,6 +38,7 @@ type ExternalBackendStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status
 
 // ExternalBackend is the Schema for the externalbackends API
