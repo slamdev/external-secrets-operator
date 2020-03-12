@@ -15,7 +15,7 @@ func NewVaultBackend() Backend {
 	}
 }
 
-func (v *vault) Connect(properties map[string]interface{}) error {
+func (v *vault) Connect(properties map[string]string) error {
 	v.log.Info("connecting", "properties", properties)
 	return nil
 }

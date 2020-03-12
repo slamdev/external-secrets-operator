@@ -15,7 +15,7 @@ func NewConsulBackend() Backend {
 	}
 }
 
-func (v *consul) Connect(properties map[string]interface{}) error {
+func (v *consul) Connect(properties map[string]string) error {
 	v.log.Info("connecting", "properties", properties)
 	return nil
 }

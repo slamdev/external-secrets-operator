@@ -3,12 +3,12 @@ package internal
 import "fmt"
 
 type Backend interface {
-	Connect(properties map[string]interface{}) error
+	Connect(properties map[string]string) error
 	GetValue(key string) (map[string]interface{}, error)
 }
 
 type BackendFactory interface {
-	Create(backendType string, backendName string, properties map[string]interface{}) error
+	Create(backendType string, backendName string, properties map[string]string) error
 	Get(backendName string) (Backend, error)
 }
 
@@ -22,12 +22,12 @@ func NewBackendFactory() BackendFactory {
 	}
 }
 
-func (b *backendFactory) Create(backendType string, backendName string, properties map[string]interface{}) error {
+func (b *backendFactory) Create(backendType string, backendName string, properties map[string]string) error {
 	var backend Backend
 	switch backendType {
-	case "consul":
+	case "Consul":
 		backend = NewConsulBackend()
-	case "vault":
+	case "Vault":
 		backend = NewVaultBackend()
 	default:
 		return fmt.Errorf("%s backend type is not known", backendType)
