@@ -61,5 +61,3 @@ type ExternalBackendList struct {
 func init() {
 	SchemeBuilder.Register(&ExternalBackend{}, &ExternalBackendList{})
 }
-
-// +kubebuilder:docs-gen:collapse=Root Object Definitions

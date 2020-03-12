@@ -48,5 +48,3 @@ type ExternalConfigMapList struct {
 func init() {
 	SchemeBuilder.Register(&ExternalConfigMap{}, &ExternalConfigMapList{})
 }
-
-// +kubebuilder:docs-gen:collapse=Root Object Definitions
