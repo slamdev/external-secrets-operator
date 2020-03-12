@@ -15,9 +15,9 @@ import (
 // ExternalSecretReconciler reconciles a ExternalSecret object
 type ExternalSecretReconciler struct {
 	client.Client
-	Log      logr.Logger
-	Scheme   *runtime.Scheme
-	Backends map[string]internal.Backend
+	Log            logr.Logger
+	Scheme         *runtime.Scheme
+	BackendFactory internal.BackendFactory
 }
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalsecrets,verbs=get;list;watch;create;update;patch;delete

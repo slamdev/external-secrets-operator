@@ -51,31 +51,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	backends := make(map[string]internal.Backend)
+	backendFactory := internal.NewBackendFactory()
 
 	if err = (&controllers.ExternalBackendReconciler{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("ExternalBackend"),
-		Scheme:   mgr.GetScheme(),
-		Backends: backends,
+		Client:         mgr.GetClient(),
+		Log:            ctrl.Log.WithName("controllers").WithName("ExternalBackend"),
+		Scheme:         mgr.GetScheme(),
+		BackendFactory: backendFactory,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ExternalBackend")
 		os.Exit(1)
 	}
 	if err = (&controllers.ExternalSecretReconciler{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("ExternalSecret"),
-		Scheme:   mgr.GetScheme(),
-		Backends: backends,
+		Client:         mgr.GetClient(),
+		Log:            ctrl.Log.WithName("controllers").WithName("ExternalSecret"),
+		Scheme:         mgr.GetScheme(),
+		BackendFactory: backendFactory,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ExternalSecret")
 		os.Exit(1)
 	}
 	if err = (&controllers.ExternalConfigMapReconciler{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("ExternalConfigMap"),
-		Scheme:   mgr.GetScheme(),
-		Backends: backends,
+		Client:         mgr.GetClient(),
+		Log:            ctrl.Log.WithName("controllers").WithName("ExternalConfigMap"),
+		Scheme:         mgr.GetScheme(),
+		BackendFactory: backendFactory,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ExternalConfigMap")
 		os.Exit(1)

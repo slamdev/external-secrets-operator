@@ -15,9 +15,9 @@ import (
 // ExternalConfigMapReconciler reconciles a ExternalConfigMap object
 type ExternalConfigMapReconciler struct {
 	client.Client
-	Log      logr.Logger
-	Scheme   *runtime.Scheme
-	Backends map[string]internal.Backend
+	Log            logr.Logger
+	Scheme         *runtime.Scheme
+	BackendFactory internal.BackendFactory
 }
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps,verbs=get;list;watch;create;update;patch;delete
