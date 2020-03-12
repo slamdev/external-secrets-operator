@@ -24,10 +24,18 @@ type ExternalConfigMapReconciler struct {
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps/status,verbs=get;update;patch
 
 func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("externalconfigmap", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("externalconfigmap", req.NamespacedName)
 
-	// your logic here
+	var externalConfigMap externalsecretsoperatorv1alpha1.ExternalConfigMap
+	if err := r.Get(ctx, req.NamespacedName, &externalConfigMap); err != nil {
+		if client.IgnoreNotFound(err) != nil {
+			log.Error(err, "unable to fetch ExternalConfigMap")
+		}
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	log.V(0).Info("reconcile", "externalConfigMap", externalConfigMap)
 
 	return ctrl.Result{}, nil
 }
