@@ -2,14 +2,15 @@ package controllers
 
 import (
 	"context"
+	externalsecretsoperatorv1alpha1 "external-secrets-operator/api/v1alpha1"
 	"external-secrets-operator/internal"
-
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	externalsecretsoperatorv1alpha1 "external-secrets-operator/api/v1alpha1"
+	"time"
 )
 
 // ExternalConfigMapReconciler reconciles a ExternalConfigMap object
@@ -22,6 +23,7 @@ type ExternalConfigMapReconciler struct {
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=create;get
 
 func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -35,13 +37,95 @@ func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	log.V(0).Info("reconcile", "externalConfigMap", externalConfigMap)
+	backend, err := r.BackendFactory.Get(externalConfigMap.Spec.BackendName)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	values, err := backend.GetValues(externalConfigMap.Spec.Key)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 
-	return ctrl.Result{}, nil
+	configMap, err := r.constructConfigMap(&externalConfigMap, values)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	var existingConfigMap corev1.ConfigMap
+	if err := r.Get(ctx, client.ObjectKey{
+		Namespace: configMap.Namespace,
+		Name:      configMap.Name,
+	}, &existingConfigMap); err != nil {
+		if client.IgnoreNotFound(err) != nil {
+			return ctrl.Result{}, err
+		}
+		if err := r.Create(ctx, configMap); err != nil {
+			log.Error(err, "unable to create ConfigMap for ExternalConfigMap", "configMap", configMap)
+			return ctrl.Result{}, err
+		}
+	} else {
+		if err := r.Update(ctx, configMap); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	if externalConfigMap.Status.LastSyncedTime == nil {
+		externalConfigMap.Status.LastSyncedTime = &metav1.Time{}
+	}
+
+	*externalConfigMap.Status.LastSyncedTime = metav1.Now()
+	if err := r.Status().Update(ctx, &externalConfigMap); err != nil {
+		log.Error(err, "unable to update ExternalConfigMap status")
+		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{RequeueAfter: time.Minute}, nil
 }
 
+func (r *ExternalConfigMapReconciler) constructConfigMap(externalConfigMap *externalsecretsoperatorv1alpha1.ExternalConfigMap, values map[string]string) (*corev1.ConfigMap, error) {
+	configMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        externalConfigMap.Name,
+			Namespace:   externalConfigMap.Namespace,
+			Labels:      make(map[string]string),
+			Annotations: make(map[string]string),
+		},
+		Data: values,
+	}
+	for k, v := range externalConfigMap.Annotations {
+		configMap.Annotations[k] = v
+	}
+	for k, v := range externalConfigMap.Labels {
+		configMap.Labels[k] = v
+	}
+	if err := ctrl.SetControllerReference(externalConfigMap, configMap, r.Scheme); err != nil {
+		return nil, err
+	}
+	return configMap, nil
+}
+
+var (
+	configMapOwnerKey = ".metadata.controller"
+	apiGVStr          = externalsecretsoperatorv1alpha1.GroupVersion.String()
+)
+
 func (r *ExternalConfigMapReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if err := mgr.GetFieldIndexer().IndexField(&corev1.ConfigMap{}, configMapOwnerKey, func(rawObj runtime.Object) []string {
+		configMap := rawObj.(*corev1.ConfigMap)
+		owner := metav1.GetControllerOf(configMap)
+		if owner == nil {
+			return nil
+		}
+		if owner.APIVersion != apiGVStr || owner.Kind != "ExternalConfigMap" {
+			return nil
+		}
+		return []string{owner.Name}
+	}); err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&externalsecretsoperatorv1alpha1.ExternalConfigMap{}).
+		Owns(&corev1.ConfigMap{}).
 		Complete(r)
 }

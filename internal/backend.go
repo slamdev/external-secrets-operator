@@ -1,10 +1,14 @@
 package internal
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/go-logr/logr"
+	ctrl "sigs.k8s.io/controller-runtime"
+)
 
 type Backend interface {
 	Connect(properties map[string]string) error
-	GetValue(key string) (map[string]interface{}, error)
+	GetValues(key string) (map[string]string, error)
 }
 
 type BackendFactory interface {
@@ -14,11 +18,13 @@ type BackendFactory interface {
 
 type backendFactory struct {
 	backends map[string]Backend
+	log      logr.Logger
 }
 
 func NewBackendFactory() BackendFactory {
 	return &backendFactory{
 		backends: make(map[string]Backend),
+		log:      ctrl.Log.WithName("backendFactory"),
 	}
 }
 
@@ -35,7 +41,7 @@ func (b *backendFactory) Create(backendType string, backendName string, properti
 	if err := backend.Connect(properties); err != nil {
 		return err
 	}
-	b.backends[backendType] = backend
+	b.backends[backendName] = backend
 	return nil
 }
 

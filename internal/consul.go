@@ -16,11 +16,13 @@ func NewConsulBackend() Backend {
 }
 
 func (v *consul) Connect(properties map[string]string) error {
-	v.log.Info("connecting", "properties", properties)
 	return nil
 }
 
-func (v *consul) GetValue(key string) (map[string]interface{}, error) {
-	v.log.Info("getting", "key", key)
-	return make(map[string]interface{}), nil
+func (v *consul) GetValues(key string) (map[string]string, error) {
+	values := make(map[string]string)
+	values["STR"] = "some-string-value"
+	values["INT"] = "123456"
+	values["BOOL"] = "true"
+	return values, nil
 }

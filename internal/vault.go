@@ -16,11 +16,13 @@ func NewVaultBackend() Backend {
 }
 
 func (v *vault) Connect(properties map[string]string) error {
-	v.log.Info("connecting", "properties", properties)
 	return nil
 }
 
-func (v *vault) GetValue(key string) (map[string]interface{}, error) {
-	v.log.Info("getting", "key", key)
-	return make(map[string]interface{}), nil
+func (v *vault) GetValues(key string) (map[string]string, error) {
+	values := make(map[string]string)
+	values["STR"] = "some-string-value"
+	values["INT"] = "123456"
+	values["BOOL"] = "true"
+	return values, nil
 }
