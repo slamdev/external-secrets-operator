@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"encoding/base64"
 	"external-secrets-operator/internal"
 	v1 "k8s.io/api/core/v1"
 
@@ -24,6 +23,7 @@ type ExternalBackendReconciler struct {
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalbackends,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalbackends/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get
 
 func (r *ExternalBackendReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -35,14 +35,14 @@ func (r *ExternalBackendReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	log.V(0).Info("reconcile", "externalBackend", externalBackend)
-
-	externalBackend.Status.Connected = new(bool)
-	*externalBackend.Status.Connected = false
-
-	if err := r.Status().Update(ctx, &externalBackend); err != nil {
-		log.Error(err, "unable to update ExternalBackend status")
-		return ctrl.Result{}, err
+	if externalBackend.Status.Connected == nil {
+		externalBackend.Status.Connected = new(bool)
+		*externalBackend.Status.Connected = false
+		if err := r.Status().Update(ctx, &externalBackend); err != nil {
+			log.Error(err, "unable to update ExternalBackend status")
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, nil
 	}
 
 	var secret v1.Secret
@@ -53,19 +53,12 @@ func (r *ExternalBackendReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 		return ctrl.Result{}, err
 	}
 
-	log.V(0).Info("reconcile", "secret", secret)
-
 	properties := make(map[string]string)
-	for key, encodedValue := range secret.Data {
-		var value []byte
-		_, err := base64.StdEncoding.Decode(value, encodedValue)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	for key, value := range secret.Data {
 		properties[key] = string(value)
 	}
 
-	if err := r.BackendFactory.Create(string(externalBackend.Spec.Type), externalBackend.Name, secret.StringData); err != nil {
+	if err := r.BackendFactory.Create(string(externalBackend.Spec.Type), externalBackend.Name, properties); err != nil {
 		return ctrl.Result{}, err
 	}
 
