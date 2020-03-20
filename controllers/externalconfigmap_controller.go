@@ -104,13 +104,8 @@ func (r *ExternalConfigMapReconciler) constructConfigMap(externalConfigMap *exte
 	return configMap, nil
 }
 
-var (
-	configMapOwnerKey = ".metadata.controller"
-	apiGVStr          = externalsecretsoperatorv1alpha1.GroupVersion.String()
-)
-
 func (r *ExternalConfigMapReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	if err := mgr.GetFieldIndexer().IndexField(&corev1.ConfigMap{}, configMapOwnerKey, func(rawObj runtime.Object) []string {
+	if err := mgr.GetFieldIndexer().IndexField(&corev1.ConfigMap{}, ownerKey, func(rawObj runtime.Object) []string {
 		configMap := rawObj.(*corev1.ConfigMap)
 		owner := metav1.GetControllerOf(configMap)
 		if owner == nil {
