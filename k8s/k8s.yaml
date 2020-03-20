@@ -270,6 +270,7 @@ rules:
   verbs:
   - create
   - get
+  - list
 - apiGroups:
   - ""
   resources:
@@ -277,6 +278,7 @@ rules:
   verbs:
   - create
   - get
+  - list
 - apiGroups:
   - external-secrets-operator.slamdev.net
   resources:
