@@ -83,3 +83,7 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+generate-kube-manifests: manifests
+	mkdir -p k8s
+	kustomize build config/default > k8s/k8s.yaml
