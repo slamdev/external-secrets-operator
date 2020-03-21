@@ -271,6 +271,7 @@ rules:
   - create
   - get
   - list
+  - watch
 - apiGroups:
   - ""
   resources:
@@ -279,6 +280,7 @@ rules:
   - create
   - get
   - list
+  - watch
 - apiGroups:
   - external-secrets-operator.slamdev.net
   resources:
