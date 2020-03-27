@@ -41,9 +41,16 @@ func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, 
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	values, err := backend.GetValues(externalConfigMap.Spec.Key)
-	if err != nil {
-		return ctrl.Result{}, err
+	values := make(map[string]string)
+	for i := range externalConfigMap.Spec.Keys {
+		kv, err := backend.GetValues(externalConfigMap.Spec.Keys[i])
+		if err != nil {
+			log.Error(err, "skipping", "key", externalConfigMap.Spec.Keys[i])
+			continue
+		}
+		for k, v := range kv {
+			values[k] = v
+		}
 	}
 
 	configMap, err := r.constructConfigMap(&externalConfigMap, values)

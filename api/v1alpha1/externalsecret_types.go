@@ -11,10 +11,10 @@ type ExternalSecretSpec struct {
 	// Name of the ExternalBackend resource that is used to get a secret value.
 	BackendName string `json:"backendName"`
 
-	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MinItems=1
 
-	// Key in the backend that holds a secret value.
-	Key string `json:"key"`
+	// Keys in the backend that hold secret values.
+	Keys []string `json:"keys"`
 }
 
 // ExternalSecretStatus defines the observed state of ExternalSecret

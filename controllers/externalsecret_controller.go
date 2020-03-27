@@ -43,9 +43,16 @@ func (r *ExternalSecretReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	values, err := backend.GetValues(externalSecret.Spec.Key)
-	if err != nil {
-		return ctrl.Result{}, err
+	values := make(map[string]string)
+	for i := range externalSecret.Spec.Keys {
+		kv, err := backend.GetValues(externalSecret.Spec.Keys[i])
+		if err != nil {
+			log.Error(err, "skipping", "key", externalSecret.Spec.Keys[i])
+			continue
+		}
+		for k, v := range kv {
+			values[k] = v
+		}
 	}
 
 	secret, err := r.constructSecret(&externalSecret, values)
