@@ -12,8 +12,11 @@ rules:
   - configmaps
   verbs:
   - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - ""
@@ -21,8 +24,11 @@ rules:
   - secrets
   verbs:
   - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - external-secrets-operator.slamdev.net

@@ -23,7 +23,7 @@ type ExternalConfigMapReconciler struct {
 
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=external-secrets-operator.slamdev.net,resources=externalconfigmaps/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups="",resources=configmaps,verbs=create;get;list;watch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
