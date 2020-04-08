@@ -82,6 +82,10 @@ func (v *vault) getSingleSecret(key string) (map[string]string, error) {
 	if s == nil {
 		return res, nil
 	}
+	if s.Data["data"] == nil {
+		v.log.Info("got nil in [data]. skipping", "key", key)
+		return res, nil
+	}
 	data := s.Data["data"].(map[string]interface{})
 	for k, v := range data {
 		res[k] = fmt.Sprint(v)
