@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"external-secrets-operator/internal"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -53,6 +54,12 @@ func (r *ExternalSecretReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		for k, v := range kv {
 			values[k] = v
 		}
+	}
+
+	if len(values) == 0 && len(externalSecret.Spec.Keys) != 0 {
+		err := errors.New("discovered 0 values for provided keys, assuming the backend is down")
+		log.Error(err, "stopping")
+		return ctrl.Result{RequeueAfter: time.Minute}, nil
 	}
 
 	secret, err := r.constructSecret(&externalSecret, values)

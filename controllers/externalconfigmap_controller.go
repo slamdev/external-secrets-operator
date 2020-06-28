@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	externalsecretsoperatorv1alpha1 "external-secrets-operator/api/v1alpha1"
 	"external-secrets-operator/internal"
 	"github.com/go-logr/logr"
@@ -51,6 +52,12 @@ func (r *ExternalConfigMapReconciler) Reconcile(req ctrl.Request) (ctrl.Result, 
 		for k, v := range kv {
 			values[k] = v
 		}
+	}
+
+	if len(values) == 0 && len(externalConfigMap.Spec.Keys) != 0 {
+		err := errors.New("discovered 0 values for provided keys, assuming the backend is down")
+		log.Error(err, "stopping")
+		return ctrl.Result{RequeueAfter: time.Minute}, nil
 	}
 
 	configMap, err := r.constructConfigMap(&externalConfigMap, values)
