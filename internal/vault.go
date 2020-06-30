@@ -103,7 +103,11 @@ func (v *vault) getNestedSecrets(key string) (map[string]string, error) {
 	if s == nil {
 		return res, nil
 	}
-	keys := s.Data["keys"].([]interface{})
+	keysEntry, ok := s.Data["keys"]
+	if !ok {
+		return res, nil
+	}
+	keys := keysEntry.([]interface{})
 	for _, i := range keys {
 		k := i.(string)
 		nestedKey := key + "/" + strings.TrimSuffix(k, "/")
