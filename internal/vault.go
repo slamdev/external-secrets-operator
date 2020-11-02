@@ -50,11 +50,12 @@ func (v *vault) GetValues(key string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(data) == 0 {
-		data, err = v.getNestedSecrets(key)
-		if err != nil {
-			return nil, err
-		}
+	nestedData, err := v.getNestedSecrets(key)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range nestedData {
+		data[k] = v
 	}
 	var res = make(map[string]string)
 	for k, n := range data {
