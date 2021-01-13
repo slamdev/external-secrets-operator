@@ -45,7 +45,7 @@ func (v *vault) Connect(properties map[string]string) error {
 }
 
 func (v *vault) GetValues(key string) (map[string]string, error) {
-	v.log.V(0).Info("processing", "key", key)
+	v.log.V(10).Info("processing", "key", key)
 	data, err := v.getSingleSecret(key)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (v *vault) GetValues(key string) (map[string]string, error) {
 		e = strings.TrimPrefix(e, "/")
 		e = v.alphaNumReg.ReplaceAllString(e, "_")
 		e = strings.ToUpper(e)
-		v.log.V(0).Info("converted", "key", k, "env", e)
+		v.log.V(10).Info("converted", "key", k, "env", e)
 		res[e] = n
 	}
 	return res, nil
@@ -84,7 +84,7 @@ func (v *vault) getSingleSecret(key string) (map[string]string, error) {
 		return res, nil
 	}
 	if s.Data["data"] == nil {
-		v.log.Info("got nil in [data]. skipping", "key", key)
+		v.log.V(10).Info("got nil in [data]. skipping", "key", key)
 		return res, nil
 	}
 	data := s.Data["data"].(map[string]interface{})

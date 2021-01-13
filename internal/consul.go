@@ -51,9 +51,9 @@ func (v *consul) GetValues(key string) (map[string]string, error) {
 	values := make(map[string]string)
 	singlePair := len(p) == 1
 	for _, kv := range p {
-		v.log.V(0).Info("processing", "key", kv.Key)
+		v.log.V(10).Info("processing", "key", kv.Key)
 		if strings.HasSuffix(kv.Key, "/") {
-			v.log.V(0).Info("skipped", "key", kv.Key)
+			v.log.V(10).Info("skipped", "key", kv.Key)
 			continue
 		}
 		var resKey string
@@ -63,7 +63,7 @@ func (v *consul) GetValues(key string) (map[string]string, error) {
 			resKey = v.guessKey(kv.Key, key)
 		}
 		resKey = v.asEnvVar(resKey)
-		v.log.V(0).Info("converted", "key", kv.Key, "env", resKey)
+		v.log.V(10).Info("converted", "key", kv.Key, "env", resKey)
 		values[resKey] = string(kv.Value)
 	}
 	return values, nil
