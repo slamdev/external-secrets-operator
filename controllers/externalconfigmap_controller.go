@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
 	"time"
 )
 
@@ -107,9 +108,15 @@ func (r *ExternalConfigMapReconciler) constructConfigMap(externalConfigMap *exte
 		Data: values,
 	}
 	for k, v := range externalConfigMap.Annotations {
+		if strings.Contains(k, "fluxcd.io") || strings.Contains(k, "last-applied-configuration") {
+			continue
+		}
 		configMap.Annotations[k] = v
 	}
 	for k, v := range externalConfigMap.Labels {
+		if strings.Contains(k, "fluxcd.io") {
+			continue
+		}
 		configMap.Labels[k] = v
 	}
 	if err := ctrl.SetControllerReference(externalConfigMap, configMap, r.Scheme); err != nil {

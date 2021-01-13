@@ -6,6 +6,7 @@ import (
 	"external-secrets-operator/internal"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -109,9 +110,15 @@ func (r *ExternalSecretReconciler) constructSecret(externalSecret *externalsecre
 		StringData: values,
 	}
 	for k, v := range externalSecret.Annotations {
+		if strings.Contains(k, "fluxcd.io") || strings.Contains(k, "last-applied-configuration") {
+			continue
+		}
 		secret.Annotations[k] = v
 	}
 	for k, v := range externalSecret.Labels {
+		if strings.Contains(k, "fluxcd.io") {
+			continue
+		}
 		secret.Labels[k] = v
 	}
 	if err := ctrl.SetControllerReference(externalSecret, secret, r.Scheme); err != nil {
